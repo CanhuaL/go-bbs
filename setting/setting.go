@@ -49,10 +49,10 @@ type LogConfig struct {
 	MaxBackups int    `mapstructure:"max_backups"`
 }
 
-func Init(filePath string) (err error) {
+func Init() (err error) {
 	// 方式1：直接指定配置文件路径（相对路径或者绝对路径）
 	// 相对路径：相对执行的可执行文件的相对路径
-	//viper.SetConfigFile("./conf/config.yaml")
+	viper.SetConfigFile("./conf/config.yaml")
 	// 绝对路径：系统中实际的文件路径
 	//viper.SetConfigFile("/Users/liwenzhou/Desktop/go_bbs/conf/config.yaml")
 
@@ -66,7 +66,7 @@ func Init(filePath string) (err error) {
 	// 基本上是配合远程配置中心使用的，告诉viper当前的数据使用什么格式去解析
 	//viper.SetConfigType("json")
 
-	viper.SetConfigFile(filePath)
+	//viper.SetConfigFile(filePath)
 
 	err = viper.ReadInConfig() // 读取配置信息
 	if err != nil {

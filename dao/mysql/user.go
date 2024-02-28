@@ -5,16 +5,20 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"go_bbs/models"
+	"time"
 )
 
 // 把每一步数据库操作封装成函数
 // 待logic层根据业务需求调用
 
-const secret = "liwenzhou.com"
+const secret = "CanHuaL"
 
 // CheckUserExist 检查指定用户名的用户是否存在
 func CheckUserExist(username string) (err error) {
-	sqlStr := `select count(user_id) from user where username = ?`
+	sqlStr := `select count(user_id) 
+				from user 
+				where username = ?
+				`
 	var count int64
 	if err := db.Get(&count, sqlStr, username); err != nil {
 		return err
@@ -30,8 +34,9 @@ func InsertUser(user *models.User) (err error) {
 	// 对密码进行加密
 	user.Password = encryptPassword(user.Password)
 	// 执行SQL语句入库
-	sqlStr := `insert into user(user_id, username, password) values(?,?,?)`
-	_, err = db.Exec(sqlStr, user.UserID, user.Username, user.Password)
+	sqlStr := `insert into user
+    (user_id, username, password, phone, email) values(?,?,?,?,?)`
+	_, err = db.Exec(sqlStr, user.UserID, user.Username, user.Password, user.Phone, user.Email)
 	return
 }
 
@@ -44,7 +49,10 @@ func encryptPassword(oPassword string) string {
 
 func Login(user *models.User) (err error) {
 	oPassword := user.Password // 用户登录的密码
-	sqlStr := `select user_id, username, password from user where username=?`
+	sqlStr := `select user_id, username, password 
+			   from user 
+			   where username = ?
+			   `
 	err = db.Get(user, sqlStr, user.Username)
 	if err == sql.ErrNoRows {
 		return ErrorUserNotExist
@@ -61,10 +69,93 @@ func Login(user *models.User) (err error) {
 	return
 }
 
+func PhoneLogin(user *models.User) (err error) {
+	oPassword := user.Password // 用户登录的密码
+	sqlStr := `select user_id, username, password 
+			   from user 
+			   where phone = ?
+			   `
+	err = db.Get(user, sqlStr, user.Phone)
+	if err == sql.ErrNoRows {
+		return ErrorUserNotExist
+	}
+	if err != nil {
+		// 查询数据库失败
+		return err
+	}
+	// 判断密码是否正确
+	password := encryptPassword(oPassword)
+	if password != user.Password {
+		return ErrorInvalidPassword
+	}
+	return
+}
+
+func EmailLogin(user *models.User) (err error) {
+	oPassword := user.Password // 用户登录的密码
+	sqlStr := `select user_id, username, password 
+			   from user 
+			   where email = ?
+			   `
+	err = db.Get(user, sqlStr, user.Email)
+	if err == sql.ErrNoRows {
+		return ErrorUserNotExist
+	}
+	if err != nil {
+		// 查询数据库失败
+		return err
+	}
+	// 判断密码是否正确
+	password := encryptPassword(oPassword)
+	if password != user.Password {
+		return ErrorInvalidPassword
+	}
+	return
+}
+
+func GetUserFromPhone(user *models.User) (err error) {
+	sqlStr := `select user_id, username, password 
+			   from user 
+			   where phone = ?
+			   `
+	err = db.Get(user, sqlStr, user.Phone)
+	if err == sql.ErrNoRows {
+		return ErrorUserNotExist
+	}
+	if err != nil {
+		// 查询数据库失败
+		return err
+	}
+	// 判断密码是否正确
+	return
+}
+
 // GetUserById 根据id获取用户信息
 func GetUserById(uid int64) (user *models.User, err error) {
 	user = new(models.User)
-	sqlStr := `select user_id, username from user where user_id = ?`
+	sqlStr := `select user_id, username 
+				from user 
+				where user_id = ?
+				`
 	err = db.Get(user, sqlStr, uid)
+	return
+}
+
+func SaveSmsMessages(sms *models.SMS) (err error) {
+	sqlStr := `insert into sms_messages
+    (sms_type, sms_content, phone, send_time)
+	values(?, ?, ?, ?)
+	`
+	_, err = db.Exec(sqlStr, sms.SMSType, sms.SMSContent, sms.Phone, time.Now())
+	return
+}
+
+func GetSmsMessages(phone string) (sms models.SMS, err error) {
+	sqlStr := `select phone, sms_content, send_time 
+				from sms_messages 
+				where phone = ? 
+				order by send_time desc limit 1
+				`
+	err = db.Get(&sms, sqlStr, phone)
 	return
 }
