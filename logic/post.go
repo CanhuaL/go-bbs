@@ -48,11 +48,19 @@ func GetPostById(pid int64) (data *models.ApiPostDetail, err error) {
 			zap.Error(err))
 		return
 	}
+	comment, err := mysql.GetCommentFromPostId(pid)
+	if err != nil {
+		zap.L().Error("mysql.GetCommentFromPostId(pid) failed",
+			zap.Int64("post_id", post.ID),
+			zap.Error(err))
+		return
+	}
 	// 接口数据拼接
 	data = &models.ApiPostDetail{
 		AuthorName:      user.Username,
 		Post:            post,
 		CommunityDetail: community,
+		Content:         comment,
 	}
 	return
 }
@@ -188,11 +196,20 @@ func GetCommunityPostList(p *models.ParamPostList) (data []*models.ApiPostDetail
 				zap.Error(err))
 			continue
 		}
+		//  根据postId查出帖子下的评论
+		content, err := mysql.GetCommentFromPostId(post.ID)
+		if err != nil {
+			zap.L().Error("mysql.GetCommentFromPostId(pid) failed",
+				zap.Int64("post_id", post.ID),
+				zap.Error(err))
+			continue
+		}
 		postDetail := &models.ApiPostDetail{
 			AuthorName:      user.Username,
 			VoteNum:         voteData[idx],
 			Post:            post,
 			CommunityDetail: community,
+			Content:         content,
 		}
 		data = append(data, postDetail)
 	}

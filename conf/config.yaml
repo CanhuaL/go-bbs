@@ -1,6 +1,6 @@
 name: "go_bbs"
 mode: "debug"
-port: 8084
+port: 8080
 version: "v0.0.1"
 start_time: "2024-05-01"
 machine_id: 1

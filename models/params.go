@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 // 定义请求的参数结构体
 
 const (
@@ -9,15 +11,21 @@ const (
 
 // ParamSignUp 注册请求参数
 type ParamSignUp struct {
-	Username   string `json:"username" binding:"required"`
-	Password   string `json:"password" binding:"required"`
-	RePassword string `json:"re_password" binding:"required,eqfield=Password"`
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	Phone      string `json:"phone"`
+	Email      string `json:"email"`
+	RePassword string `json:"re_password"`
 }
 
 // ParamLogin 登录请求参数
 type ParamLogin struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	UserId   int64  `json:"userId"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Phone    string `json:"phone"`
+	Email    string `json:"email"`
+	Code     string `json:"code"`
 }
 
 // ParamVoteData 投票数据
@@ -33,4 +41,13 @@ type ParamPostList struct {
 	Page        int64  `json:"page" form:"page" example:"1"`       // 页码
 	Size        int64  `json:"size" form:"size" example:"10"`      // 每页数据量
 	Order       string `json:"order" form:"order" example:"score"` // 排序依据
+}
+
+// ParamComment 创建评论参数
+type ParamComment struct {
+	PostId     int64     `json:"post_id" db:"post_id"` //帖子Id
+	UserName   string    `json:"user_name" db:"username"`
+	AuthorID   int64     `json:"author_id" db:"author_id"`                //评论者id
+	Content    string    `json:"content" db:"content" binding:"required"` //内容
+	CreateTime time.Time `json:"create_time" db:"create_time"`            //创建时间
 }
