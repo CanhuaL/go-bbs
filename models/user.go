@@ -8,6 +8,8 @@ type User struct {
 	Password string `db:"password"`
 	Phone    string `db:"phone"`
 	Email    string `db:"email"`
+	Avatar   []byte `db:"avatar"`
+	Gender   int32  `db:"gender"`
 	Token    string
 }
 

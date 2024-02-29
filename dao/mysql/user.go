@@ -35,8 +35,8 @@ func InsertUser(user *models.User) (err error) {
 	user.Password = encryptPassword(user.Password)
 	// 执行SQL语句入库
 	sqlStr := `insert into user
-    (user_id, username, password, phone, email) values(?,?,?,?,?)`
-	_, err = db.Exec(sqlStr, user.UserID, user.Username, user.Password, user.Phone, user.Email)
+    (user_id, username, password, phone, email, avatar) values(?,?,?,?,?, ?)`
+	_, err = db.Exec(sqlStr, user.UserID, user.Username, user.Password, user.Phone, user.Email, user.Avatar)
 	return
 }
 
@@ -157,5 +157,14 @@ func GetSmsMessages(phone string) (sms models.SMS, err error) {
 				order by send_time desc limit 1
 				`
 	err = db.Get(&sms, sqlStr, phone)
+	return
+}
+
+func UploadAvatar(userId int64, avatarData []byte) (err error) {
+	sqlStr := `insert into user
+	(user_id, avatar)
+	values(?,?) 
+	`
+	_, err = db.Exec(sqlStr, userId, avatarData)
 	return
 }

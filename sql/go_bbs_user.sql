@@ -8,6 +8,7 @@ create table user
     password    varchar(64)                         not null,
     email       varchar(64)                         not null,
     gender      tinyint   default 0                 not null,
+    avatar BLOB,
     create_time timestamp default CURRENT_TIMESTAMP null,
     update_time timestamp default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP,
     constraint idx_user_id
