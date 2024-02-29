@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"fmt"
 	"go.uber.org/zap"
 	"go_bbs/dao/mysql"
 	"go_bbs/dao/redis"
@@ -115,7 +116,8 @@ func SaveCode(phone string) (err error) {
 		now := time.Now().Unix()
 		t := s.SendTime.Unix()
 		//  如果验证码间隔小于60s则提示报错
-		if now-t < 60000 {
+		if now-t < 60 {
+			fmt.Println("请在：", 60-(now-t), "s后再试")
 			zap.L().Error("验证码间隔小于60s，请稍后再试！", zap.Error(err))
 			return err
 		}
