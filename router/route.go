@@ -61,8 +61,11 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.GET("/community/:id", controller.CommunityDetailHandler)
 	//  查询帖子详情
 	v1.GET("/post/:id", controller.GetPostDetailHandler)
+	//  上传用户头像
+	v1.POST("upload_avatar", controller.UploadAvatar)
 
-	v1.Use(middlewares.JWTAuthMiddleware()) // 应用JWT认证中间件
+	// 应用JWT认证中间件
+	v1.Use(middlewares.JWTAuthMiddleware())
 
 	{
 		//  创建帖子

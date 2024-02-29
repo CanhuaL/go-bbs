@@ -9,6 +9,7 @@ import (
 	"go_bbs/pkg/jwt"
 	"go_bbs/pkg/snowflake"
 	"math/rand"
+	"mime/multipart"
 	"strconv"
 	"time"
 )
@@ -29,6 +30,8 @@ func SignUp(p *models.ParamSignUp) (err error) {
 		Password: p.Password,
 		Phone:    p.Phone,
 		Email:    p.Email,
+		Avatar:   p.Avatar,
+		Gender:   p.Gender,
 	}
 	// 3.保存进数据库
 	return mysql.InsertUser(user)
@@ -145,4 +148,21 @@ func generateCode() string {
 
 func GetCode(code, phone string) (err error) {
 	return redis.GetCode(code, phone)
+}
+
+func UploadAvatar(userId int64, file *multipart.FileHeader) (err error) {
+	// 打开文件
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	// 读取文件内容
+	avatarData := make([]byte, file.Size)
+	_, err = src.Read(avatarData)
+	if err != nil {
+		return err
+	}
+	return mysql.UploadAvatar(userId, avatarData)
 }

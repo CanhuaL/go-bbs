@@ -9,6 +9,7 @@ import (
 	"go_bbs/dao/mysql"
 	"go_bbs/logic"
 	"go_bbs/models"
+	"net/http"
 	"unicode"
 )
 
@@ -217,5 +218,33 @@ func SMSLoginHandler(c *gin.Context) {
 		"user_id":   fmt.Sprintf("%d", user.UserID), // id值大于1<<53-1  int64类型的最大值是1<<63-1
 		"user_name": user.Username,
 		"token":     user.Token,
+	})
+}
+
+func UploadAvatar(c *gin.Context) {
+	// 从请求中获取上传的文件
+	file, err := c.FormFile("avatar")
+	// 获取上下文的userID
+	userId, _ := c.Get(CtxUserIDKey)
+	value, ok := userId.(int64)
+	if ok {
+		// 转换成功
+		fmt.Println("Value:", value)
+	} else {
+		// 转换失败
+		zap.L().Error("Conversion failed")
+	}
+	if err != nil {
+		ResponseError(c, http.StatusInternalServerError)
+		return
+	}
+
+	if err := logic.UploadAvatar(value, file); err != nil {
+		ResponseError(c, http.StatusInternalServerError)
+		return
+	}
+
+	ResponseSuccess(c, gin.H{
+		"message": "Avatar uploaded successfully",
 	})
 }

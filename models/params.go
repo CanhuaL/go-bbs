@@ -16,6 +16,8 @@ type ParamSignUp struct {
 	Phone      string `json:"phone"`
 	Email      string `json:"email"`
 	RePassword string `json:"re_password"`
+	Gender     int32  `json:"gender"`
+	Avatar     []byte `json:"avatar"`
 }
 
 // ParamLogin 登录请求参数
