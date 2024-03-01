@@ -6,6 +6,8 @@ CREATE TABLE comment
     content      varchar(8192)                       not null comment '评论内容',
     author_id    bigint                              not null comment '评论作者的用户id',
     create_time  timestamp default CURRENT_TIMESTAMP null comment '评论创建时间',
+    picture BLOB comment '评论照片',
+    picture_url varchar(255) comment 'oss内url',
     constraint fk_comment_post_id
         foreign key (post_id) references post (post_id)
         on delete cascade

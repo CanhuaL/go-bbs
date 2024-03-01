@@ -64,6 +64,8 @@ func SetupRouter(mode string) *gin.Engine {
 	//  上传用户头像
 	v1.POST("upload_avatar", controller.UploadAvatar)
 
+	//  新增帖子评论
+	v1.POST("/create_comment/:id", controller.CreateCommentHandler)
 	// 应用JWT认证中间件
 	v1.Use(middlewares.JWTAuthMiddleware())
 
@@ -72,8 +74,6 @@ func SetupRouter(mode string) *gin.Engine {
 		v1.POST("/post", controller.CreatePostHandler)
 		//  帖子评论相关
 
-		//  新增帖子评论
-		v1.POST("/create_comment/:id", controller.CreateCommentHandler)
 		//  删除帖子评论
 		v1.DELETE("/delete_comment")
 		// 投票

@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 // 定义请求的参数结构体
 
@@ -48,8 +50,9 @@ type ParamPostList struct {
 // ParamComment 创建评论参数
 type ParamComment struct {
 	PostId     int64     `json:"post_id" db:"post_id"` //帖子Id
-	UserName   string    `json:"user_name" db:"username"`
-	AuthorID   int64     `json:"author_id" db:"author_id"`                //评论者id
-	Content    string    `json:"content" db:"content" binding:"required"` //内容
-	CreateTime time.Time `json:"create_time" db:"create_time"`            //创建时间
+	UserName   string    `json:"user_name" db:"username" binding:"required"`
+	AuthorID   int64     `json:"author_id" db:"author_id" binding:"required"` //评论者id
+	Content    string    `json:"content" db:"content" binding:"required"`     //内容
+	CreateTime time.Time `json:"create_time" db:"create_time"`                //创建时间
+	PictureURL string    `json:"picture_url" db:"picture_url"`
 }
