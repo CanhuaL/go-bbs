@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"go_bbs/dao/mysql"
+	"go_bbs/dao/oss"
 	"go_bbs/dao/redis"
 	"go_bbs/models"
 	"go_bbs/pkg/jwt"
 	"go_bbs/pkg/snowflake"
 	"math/rand"
-	"mime/multipart"
+	"os"
 	"strconv"
 	"time"
 )
@@ -150,19 +151,22 @@ func GetCode(code, phone string) (err error) {
 	return redis.GetCode(code, phone)
 }
 
-func UploadAvatar(userId int64, file *multipart.FileHeader) (err error) {
-	// 打开文件
-	src, err := file.Open()
-	if err != nil {
-		return err
+func UploadAvatar(userId int64, imageURL, imageName, imagePath string) (err error) {
+	// 上传图片到阿里云 OSS
+	if err = oss.UploadAvatarToOSS(imagePath, imageName); err != nil {
+		zap.L().Error("Failed to upload image to OSS", zap.Error(err))
+		return
 	}
-	defer src.Close()
 
-	// 读取文件内容
-	avatarData := make([]byte, file.Size)
-	_, err = src.Read(avatarData)
-	if err != nil {
+	// 将头像url插入到mysql中
+	if err = mysql.UploadAvatar(userId, imageURL); err != nil {
 		return err
 	}
-	return mysql.UploadAvatar(userId, avatarData)
+
+	// 删除服务器上的临时图片文件
+	if err = os.Remove(imagePath); err != nil {
+		zap.L().Error("Failed to delete image file", zap.Error(err))
+	}
+
+	return
 }

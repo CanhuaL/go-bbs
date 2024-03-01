@@ -9,7 +9,10 @@ import (
 	"go_bbs/dao/mysql"
 	"go_bbs/logic"
 	"go_bbs/models"
+	"math/rand"
 	"net/http"
+	"strconv"
+	"time"
 	"unicode"
 )
 
@@ -221,25 +224,46 @@ func SMSLoginHandler(c *gin.Context) {
 	})
 }
 
+// UploadAvatar 获取用户头像上传oss
 func UploadAvatar(c *gin.Context) {
 	// 从请求中获取上传的文件
 	file, err := c.FormFile("avatar")
-	// 获取上下文的userID
-	userId, _ := c.Get(CtxUserIDKey)
-	value, ok := userId.(int64)
-	if ok {
-		// 转换成功
-		fmt.Println("Value:", value)
-	} else {
-		// 转换失败
-		zap.L().Error("Conversion failed")
-	}
 	if err != nil {
-		ResponseError(c, http.StatusInternalServerError)
+		ResponseError(c, http.StatusBadRequest)
 		return
 	}
 
-	if err := logic.UploadAvatar(value, file); err != nil {
+	// 获取上传的 userid 参数
+	userIDStr := c.PostForm("userid")
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
+	if err != nil {
+		ResponseError(c, http.StatusBadRequest)
+		return
+	}
+
+	// 生成图片URL
+	imageName := file.Filename
+	imageURL := generateFileName(imageName)
+
+	// 保存图片到服务器
+	imagePath := fmt.Sprintf("./temp/%s", imageName)
+	if err = c.SaveUploadedFile(file, imagePath); err != nil {
+		ResponseError(c, http.StatusInternalServerError)
+		return
+	}
+	// TODO 通过token获取userId定位用户
+	// 获取上下文的userID
+	//userId, _ := c.Get(CtxUserIDKey)
+	//value, ok := userId.(int64)
+	//if ok {
+	//	// 转换成功
+	//	fmt.Println("Value:", value)
+	//} else {
+	//	// 转换失败
+	//	zap.L().Error("Conversion failed")
+	//}
+
+	if err = logic.UploadAvatar(userID, imageURL, imageName, imagePath); err != nil {
 		ResponseError(c, http.StatusInternalServerError)
 		return
 	}
@@ -247,4 +271,8 @@ func UploadAvatar(c *gin.Context) {
 	ResponseSuccess(c, gin.H{
 		"message": "Avatar uploaded successfully",
 	})
+}
+
+func generateFileName(suffix string) string {
+	return fmt.Sprintf("%d%04d%s", time.Now().Unix(), rand.Int31(), suffix)
 }

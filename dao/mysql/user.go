@@ -141,6 +141,7 @@ func GetUserById(uid int64) (user *models.User, err error) {
 	return
 }
 
+// SaveSmsMessages 保存验证码到数据库
 func SaveSmsMessages(sms *models.SMS) (err error) {
 	sqlStr := `insert into sms_messages
     (sms_type, sms_content, phone, send_time)
@@ -150,6 +151,7 @@ func SaveSmsMessages(sms *models.SMS) (err error) {
 	return
 }
 
+// GetSmsMessages 查数据库短信记录
 func GetSmsMessages(phone string) (sms models.SMS, err error) {
 	sqlStr := `select phone, sms_content, send_time 
 				from sms_messages 
@@ -160,11 +162,12 @@ func GetSmsMessages(phone string) (sms models.SMS, err error) {
 	return
 }
 
-func UploadAvatar(userId int64, avatarData []byte) (err error) {
+// UploadAvatar 上传用户头像
+func UploadAvatar(userId int64, avatarUrl string) (err error) {
 	sqlStr := `insert into user
-	(user_id, avatar)
+	(user_id, avatar_url)
 	values(?,?) 
 	`
-	_, err = db.Exec(sqlStr, userId, avatarData)
+	_, err = db.Exec(sqlStr, userId, avatarUrl)
 	return
 }
