@@ -50,7 +50,7 @@ func SetupRouter(mode string) *gin.Engine {
 	//  手机验证码登录
 	v1.POST("/sms_login", controller.SMSLoginHandler)
 	//  发送验证码
-	v1.POST("/send_code", controller.SendCode)
+	v1.POST("/send_code", controller.SendCodeHandler)
 	// 根据时间或分数获取帖子列表
 	v1.GET("/posts2", controller.GetPostListHandler2)
 	//  获取帖子列表的处理函数
@@ -62,8 +62,11 @@ func SetupRouter(mode string) *gin.Engine {
 	//  查询帖子详情
 	v1.GET("/post/:id", controller.GetPostDetailHandler)
 	//  上传用户头像
-	v1.POST("upload_avatar", controller.UploadAvatar)
-
+	v1.POST("/upload_avatar", controller.UploadAvatarHandler)
+	v1.POST("/friend_add", controller.AddFriendHandler)
+	v1.GET("/friend_list", controller.ListFriendsHandler)
+	v1.DELETE("/friend_delete", controller.DeleteFriendHandler)
+	v1.POST("/friend_confirm", controller.ConfirmFriendHandler)
 	//  新增帖子评论
 	v1.POST("/create_comment/:id", controller.CreateCommentHandler)
 	// 应用JWT认证中间件
@@ -73,9 +76,16 @@ func SetupRouter(mode string) *gin.Engine {
 		//  创建帖子
 		v1.POST("/post", controller.CreatePostHandler)
 		//  帖子评论相关
-
 		//  删除帖子评论
 		v1.DELETE("/delete_comment")
+		//  好友管理
+		//  添加朋友
+		//  展示好友列表
+
+		//  删除好友
+
+		//  确认好友
+
 		// 投票
 		v1.POST("/vote", controller.PostVoteController)
 	}
