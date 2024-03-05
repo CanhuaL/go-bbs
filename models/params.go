@@ -56,3 +56,15 @@ type ParamComment struct {
 	CreateTime time.Time `json:"create_time" db:"create_time"`                //创建时间
 	PictureURL string    `json:"picture_url" db:"picture_url"`
 }
+
+type ParamFriendRelation struct {
+	UserId   int64  `json:"user_id"`
+	FriendId int64  `json:"friend_id"`
+	Status   string `json:"status"`
+}
+
+type ParamConfirmFriend struct {
+	UserId   int64  `json:"user_id"`
+	FriendId int64  `json:"friend_id"`
+	Status   string `json:"status"`
+}

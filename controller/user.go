@@ -151,8 +151,8 @@ func EmailLoginHandler(c *gin.Context) {
 	})
 }
 
-// SendCode 发送验证码
-func SendCode(c *gin.Context) {
+// SendCodeHandler 发送验证码
+func SendCodeHandler(c *gin.Context) {
 	p := new(models.ParamLogin)
 	if err := c.ShouldBindJSON(p); err != nil {
 		// 请求参数有误，直接返回响应
@@ -224,8 +224,8 @@ func SMSLoginHandler(c *gin.Context) {
 	})
 }
 
-// UploadAvatar 获取用户头像上传oss
-func UploadAvatar(c *gin.Context) {
+// UploadAvatarHandler 获取用户头像上传oss
+func UploadAvatarHandler(c *gin.Context) {
 	// 从请求中获取上传的文件
 	file, err := c.FormFile("avatar")
 	if err != nil {
