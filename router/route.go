@@ -63,10 +63,14 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.GET("/post/:id", controller.GetPostDetailHandler)
 	//  上传用户头像
 	v1.POST("/upload_avatar", controller.UploadAvatarHandler)
+
 	v1.POST("/friend_add", controller.AddFriendHandler)
 	v1.GET("/friend_list", controller.ListFriendsHandler)
 	v1.DELETE("/friend_delete", controller.DeleteFriendHandler)
 	v1.POST("/friend_confirm", controller.ConfirmFriendHandler)
+
+	v1.POST("/private_chat", controller.PrivateChatHandler)
+
 	//  新增帖子评论
 	v1.POST("/create_comment/:id", controller.CreateCommentHandler)
 	// 应用JWT认证中间件

@@ -68,3 +68,8 @@ type ParamConfirmFriend struct {
 	FriendId int64  `json:"friend_id"`
 	Status   string `json:"status"`
 }
+
+type ParamPrivateChat struct {
+	SenderId   int64 `json:"sender_id"`
+	ReceiverId int64 `json:"receiver_id"`
+}

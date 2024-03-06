@@ -3,9 +3,9 @@ CREATE TABLE friend_relationship (
     user_id BIGINT NOT NULL,
     friend_id BIGINT NOT NULL,
     status ENUM('pending', 'accepted', 'rejected', 'blocked') DEFAULT 'pending',
-    created_at TIMESTAMP ,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX user_friend_index (user_id, friend_id),  -- 索引以便快速查询用户的好友列表
+    INDEX user_friend_index (user_id, friend_id),  -- 符合索引以便快速查询用户的好友列表
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
     FOREIGN KEY (friend_id) REFERENCES user(user_id) ON DELETE CASCADE
 );
