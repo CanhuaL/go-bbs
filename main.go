@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go_bbs/controller"
 	"go_bbs/dao/mysql"
+	"go_bbs/dao/rabbitmq"
 	"go_bbs/dao/redis"
 	"go_bbs/logger"
 	"go_bbs/pkg/snowflake"
@@ -37,6 +38,11 @@ func main() {
 		return
 	}
 	defer redis.Close()
+	if err := rabbitmq.Init(setting.Conf.RabbitConfig); err != nil {
+		fmt.Printf("init rabbitmq failed, err:%v\n", err)
+		return
+	}
+	defer rabbitmq.Close()
 
 	if err := snowflake.Init(setting.Conf.StartTime, setting.Conf.MachineID); err != nil {
 		fmt.Printf("init snowflake failed, err:%v\n", err)

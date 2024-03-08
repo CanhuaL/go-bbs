@@ -17,9 +17,10 @@ type AppConfig struct {
 	MachineID int64  `mapstructure:"machine_id"`
 	Port      int    `mapstructure:"port"`
 
-	*LogConfig   `mapstructure:"log"`
-	*MySQLConfig `mapstructure:"mysql"`
-	*RedisConfig `mapstructure:"redis"`
+	*LogConfig    `mapstructure:"log"`
+	*MySQLConfig  `mapstructure:"mysql"`
+	*RedisConfig  `mapstructure:"redis"`
+	*RabbitConfig `mapstructure:"rabbitmq"`
 }
 
 type MySQLConfig struct {
@@ -47,6 +48,13 @@ type LogConfig struct {
 	MaxSize    int    `mapstructure:"max_size"`
 	MaxAge     int    `mapstructure:"max_age"`
 	MaxBackups int    `mapstructure:"max_backups"`
+}
+
+type RabbitConfig struct {
+	Host     string `mapstructure:"host"`
+	User     string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
+	Port     int    `mapstructure:"port"`
 }
 
 func Init() (err error) {
