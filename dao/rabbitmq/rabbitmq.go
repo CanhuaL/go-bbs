@@ -2,12 +2,16 @@ package rabbitmq
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"go_bbs/setting"
 
 	"github.com/streadway/amqp"
 )
 
-var Conn *amqp.Connection
+var (
+	Conn           *amqp.Connection
+	PrivateChannel *amqp.Channel
+)
 
 func Init(cfg *setting.RabbitConfig) (err error) {
 	dsn := fmt.Sprintf("amqp://%s:%s@%s:%d/", cfg.User, cfg.Password, cfg.Host, cfg.Port)
@@ -15,63 +19,26 @@ func Init(cfg *setting.RabbitConfig) (err error) {
 	if err != nil {
 		return
 	}
+	PrivateChannel, err = Conn.Channel()
+	if err != nil {
+		zap.L().Fatal("Failed to create RabbitMQ channel", zap.Error(err))
+	}
+	// 声明交换机
+	err = PrivateChannel.ExchangeDeclare(
+		"private_chat", // 交换机名称
+		"topic",        // 交换机类型
+		true,           // 是否持久化
+		false,          // 是否自动删除
+		false,          // 是否内部
+		false,          // 是否等待
+		nil,            // 附加参数
+	)
+	if err != nil {
+		zap.L().Fatal("Failed to declare RabbitMQ exchange", zap.Error(err))
+	}
 	return
 }
 
 func Close() {
 	_ = Conn.Close()
 }
-
-//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-//failOnError(err, "Failed to connect to RabbitMQ")
-//defer conn.Close()
-//
-//ch, err := conn.Channel()
-//failOnError(err, "Failed to open a channel")
-//defer ch.Close()
-//
-//err = ch.ExchangeDeclare(
-//"logs_topic", // name
-//"topic",      // type
-//true,         // durable
-//false,        // auto-deleted
-//false,        // internal
-//false,        // no-wait
-//nil,          // arguments
-//)
-//failOnError(err, "Failed to declare an exchange")
-//
-//body := bodyFrom(os.Args)
-//err = ch.Publish(
-//"logs_topic",          // exchange
-//severityFrom(os.Args), // routing key
-//false,                 // mandatory
-//false,                 // immediate
-//amqp.Publishing{
-//ContentType: "text/plain",
-//Body:        []byte(body),
-//})
-//failOnError(err, "Failed to publish a message")
-//
-//log.Printf(" [x] Sent %s", body)
-//}
-//
-//func bodyFrom(args []string) string {
-//	var s string
-//	if (len(args) < 3) || os.Args[2] == "" {
-//		s = "hello"
-//	} else {
-//		s = strings.Join(args[2:], " ")
-//	}
-//	return s
-//}
-//
-//func severityFrom(args []string) string {
-//	var s string
-//	if (len(args) < 2) || os.Args[1] == "" {
-//		s = "anonymous.info"
-//	} else {
-//		s = os.Args[1]
-//	}
-//	return s
-//}

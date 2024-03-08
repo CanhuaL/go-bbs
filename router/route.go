@@ -69,7 +69,7 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.DELETE("/friend_delete", controller.DeleteFriendHandler)
 	v1.POST("/friend_confirm", controller.ConfirmFriendHandler)
 
-	v1.POST("/private_chat", controller.PrivateChatHandler)
+	v1.GET("/ws/private_chat", controller.PrivateChatHandler)
 
 	//  新增帖子评论
 	v1.POST("/create_comment/:id", controller.CreateCommentHandler)
