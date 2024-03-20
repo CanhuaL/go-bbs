@@ -68,7 +68,7 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.GET("/friend_list", controller.ListFriendsHandler)
 	v1.DELETE("/friend_delete", controller.DeleteFriendHandler)
 	v1.POST("/friend_confirm", controller.ConfirmFriendHandler)
-
+	v1.GET("/check_private_chat/:sender_id/:receiver_id", controller.CheckPrivateChatHandler)
 	v1.GET("/ws/private_chat", controller.PrivateChatHandler)
 
 	//  新增帖子评论

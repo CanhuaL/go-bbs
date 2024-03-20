@@ -61,7 +61,7 @@ func PrivateChat(senderId, receiverId int64, w http.ResponseWriter, r *http.Requ
 // SendProc ws发送协程
 func SendProc(node *Node) {
 	for {
-		var msg models.ParamPrivateChatMsg
+		var msg *models.ParamPrivateChatMsg
 		err := node.Conn.ReadJSON(&msg)
 		if err != nil {
 			zap.L().Error(err.Error())
@@ -74,6 +74,38 @@ func SendProc(node *Node) {
 		if err != nil {
 			return
 		}
+		// 检查是否已经声明过该用户的队列
+		if _, loaded := declaredQueues.LoadOrStore(msg.ReceiverId, true); loaded {
+			return // 如果已经声明过，直接返回
+		}
+		queueName := fmt.Sprintf("privateMessages_%d", msg.ReceiverId)
+		// 声明队列
+		_, err = rabbitmq.PrivateChannel.QueueDeclare(
+			queueName, // 队列名称
+			true,      // 是否持久化
+			false,     // 是否自动删除
+			false,     // 是否排他
+			false,     // 是否阻塞
+			nil,       // 额外参数
+		)
+		if err != nil {
+			zap.L().Error(err.Error())
+			return
+		}
+		bindingKey := fmt.Sprintf("private.*.%d", msg.ReceiverId)
+		err = rabbitmq.PrivateChannel.QueueBind(
+			queueName,      // queue name
+			bindingKey,     // routing key
+			"private_chat", // exchange
+			false,
+			nil)
+		if err != nil {
+			zap.L().Error(err.Error())
+			// 如果绑定队列失败，从已声明队列记录中移除
+			declaredQueues.Delete(msg.ReceiverId)
+			return
+		}
+
 		err = rabbitmq.PrivateChannel.Publish(
 			"private_chat", // 交换机名称
 			routingKey,     // 路由键，使用默认交换机，直接发送到队列中
@@ -104,37 +136,7 @@ func SendProc(node *Node) {
 
 // ReceiveProc ws接收协程
 func ReceiveProc(receiverId int64) {
-	// 检查是否已经声明过该用户的队列
-	if _, loaded := declaredQueues.LoadOrStore(receiverId, true); loaded {
-		return // 如果已经声明过，直接返回
-	}
 	queueName := fmt.Sprintf("privateMessages_%d", receiverId)
-	// 声明队列
-	_, err := rabbitmq.PrivateChannel.QueueDeclare(
-		queueName, // 队列名称
-		true,      // 是否持久化
-		false,     // 是否自动删除
-		false,     // 是否排他
-		false,     // 是否阻塞
-		nil,       // 额外参数
-	)
-	if err != nil {
-		zap.L().Error(err.Error())
-		return
-	}
-	bindingKey := fmt.Sprintf("private.*.%d", receiverId)
-	err = rabbitmq.PrivateChannel.QueueBind(
-		queueName,      // queue name
-		bindingKey,     // routing key
-		"private_chat", // exchange
-		false,
-		nil)
-	if err != nil {
-		zap.L().Error(err.Error())
-		// 如果绑定队列失败，从已声明队列记录中移除
-		declaredQueues.Delete(receiverId)
-		return
-	}
 	msgs, err := rabbitmq.PrivateChannel.Consume(
 		queueName, // queue
 		"",        // consumer
@@ -162,4 +164,8 @@ func ReceiveProc(receiverId int64) {
 			break
 		}
 	}
+}
+
+func CheckPrivateChat(senderId, receiverId, page, size int64) (msg []*models.PrivateChat, err error) {
+	return mysql.CheckPrivateChat(senderId, receiverId, page, size)
 }

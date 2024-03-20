@@ -64,7 +64,7 @@ func CreatePost(postID, communityID int64) error {
 
 func VoteForPost(userID, postID string, value float64) error {
 	// 1. 判断投票限制
-	// 去redis取帖子发布时间
+	// 去redis取帖子发布时间，超过一周则直接返回
 	postTime := client.ZScore(getRedisKey(KeyPostTimeZSet), postID).Val()
 	if float64(time.Now().Unix())-postTime > oneWeekInSeconds {
 		return ErrVoteTimeExpire
@@ -72,7 +72,7 @@ func VoteForPost(userID, postID string, value float64) error {
 	// 2和3需要放到一个pipeline事务中操作
 
 	// 2. 更新贴子的分数
-	// 先查当前用户给当前帖子的投票记录
+	// 先查当前用户给当前帖子的投票记录，0，1或者-1
 	ov := client.ZScore(getRedisKey(KeyPostVotedZSetPF+postID), userID).Val()
 
 	// 更新：如果这一次投票的值和之前保存的值一致，就提示不允许重复投票
