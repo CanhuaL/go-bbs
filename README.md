@@ -9,6 +9,13 @@
     2. go_bbs_user.sql
     3. go_bbs_community.sql
     4. go_bbs_post.sql
+    5. go_bbs_sms_messages.sql
+    6. go_bbs_private_messages.sql
+    7. go_bbs_groups.sql
+    8. go_bbs_group_messages.sql
+    9. go_bbs__group_members.sql
+    10. go_bbs_friend_relationship.sql
+    11. go_bbs__comment.sql
 3. 执行 `go build -o ./bin/go_bbs`，编译可执行文件至项目的bin目录
 4. 执行 `./bin/go_bbs conf/config.yaml`，启动程序
 5. 打开你的浏览器输入 [http://127.0.0.1:8084](http://127.0.0.1:8084)，默认端口是 8084，你可以在配置文件中修改
@@ -16,7 +23,8 @@
 ## 注意事项
 1. 确保你的MySQL配置是正确的
 2. 确保你的Redis配置是正确的
-3. 可点击右上角自行注册测试账号
+3. 确保你的RabbitMQ配置是正确的
+4. 可点击右上角自行注册测试账号
 
 
 
